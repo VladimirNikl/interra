@@ -9,24 +9,25 @@ namespace Zadanie1
 {
     class Program
     {
-        static object bloked = new object();// зачем ()
+        static object bloked = new object();
         static Random random = new Random();
         static void Method()
         {
-        //    ThreadStart threadStart = new ThreadStart(Method);
-        //    Thread thread = new Thread(threadStart);
-        //    thread.Start();
-           lock (bloked)
-           {
-                Console.SetWindowSize(80, 40);
-                int horiz = random.Next(0, 79);
-                int chain = random.Next(1, 20);
-                int k = 40 + chain;
-                int m = 0;
-                int n = 1;
-                for (int i = 0; i < k; i++)
+            Console.SetWindowSize(80, 40);
+            int horiz = random.Next(0, 79);
+            int chain = random.Next(1, 20);
+            int k = 40 + chain;
+            int m = 0;
+            int n = 1;
+            for (int i = 0; i < k; i++)
+            {
+                lock (bloked)
                 {
-                    for (int j = m; j < n; j++)
+                    Paint();
+                }
+                void Paint()
+                {
+                    for (int j = m; j < n; j++)  //рисование очередной части цепочки.
                     {
                         Console.SetCursorPosition(horiz, j);
                         if (n < 40)
@@ -50,8 +51,16 @@ namespace Zadanie1
 
                         Console.Write(0);
                     }
+                }
 
-                    Thread.Sleep(70);
+                Thread.Sleep(70);
+                // стирание очередной части цепочки.
+                lock (bloked)
+                {
+                    Erasure();
+                }
+                void Erasure()
+                {
                     for (int j = m; j < n; j++)
                     {
                         Console.SetCursorPosition(horiz, j);
@@ -59,34 +68,32 @@ namespace Zadanie1
                         // if (j >= 39)// j это не номер цикла(из40), а результирующее положение курсора по вертикали
                         //  chain--; // - сумма из положения курсора из цикла текущего звена цепочки.
                     }
+                    // подготовка значений переменных для рисования очередной части цепочки.
                     if (n < chain)
                     {
                         n++; m = 0;
                     }
                     else
                     {
-                        m = i - chain + 2;
+                        m = i - chain + 2;  // начальное вертикальное положение положение первого звена цепочки.
                         n = chain + m;
                         if (n >= 40)  // j - от ноля, нулевая строка есть. n - с единицы. 1 -печатает первую строку.
                             n = 40;// внизу консоли максимальное отклонение ограничивается нижним значением, а начало цепочки также спускается вниз 
-                    }     // т.е. колличество циклов -звеньев цепочки сокращается.
+                    } // т.е. колличество циклов -звеньев цепочки сокращается.
                 }
-           }
-                //ThreadStart threadStart = new ThreadStart(Method);
-                //Thread thread = new Thread(threadStart);
-                //thread.Start();
-
+            }
         }
         static void Main()
         {
+            ThreadStart threadStart = new ThreadStart(Method);
+            do
+            {
+                Thread thread = new Thread(threadStart);
+                thread.Start();
+                int delay = random.Next(100, 300);
+                Thread.Sleep(delay);
 
-            ThreadStart threadStart1 = new ThreadStart(Method);
-            Thread thread1 = new Thread(threadStart1);
-            thread1.Start();
-            Method();
-            Console.SetCursorPosition(1, 1);
-            Console.WriteLine("Основной поток завершает работу.");
-            Console.ReadKey();
+            } while (true);
         }
     }
 }

@@ -85,6 +85,7 @@ namespace Zadanie1
         }
         static void Main()
         {
+            // привет!
             ThreadStart threadStart = new ThreadStart(Method);
             do
             {
